@@ -11,11 +11,27 @@ mirror -enr --include-glob heasoft*src.tar.gz --exclude-glob *xspec*
 bye
 "
 
-#chandra caldb
+#chandra
+CIAO_VER=$(lftp -e "ls -t; bye" ftp://cxc.harvard.edu/pub 2> /dev/null |egrep -o ciao[0-9.]* | head -1)
 lftp -e "
 open 'ftp://cda.harvard.edu/pub/arcftp/caldb/'
-lcd $LftpDir/ciao
+lcd $LftpDir/chandra/caldb
 mirror -enr --include-glob caldb_*_main.tar.gz
+lcd $LftpDir/chandra/tmp
+open 'ftp://cxc.harvard.edu/pub/$CIAO_VER/all'
+mirror -enr --include-glob ciao-install
+bye
+"
+if [ $(uname -s) == Darwin ] ; then
+  SYS_VER=$(cat chandra/tmp/ciao-install|grep -A15 '${macver}'|tail -15|grep -B15 unsupport_sys|grep RSYS|tail -1|sed s/.*RSYS=\"//g|sed s/\"//g)
+else
+  SYS_VER=LinuxU
+fi
+
+lftp -e "
+open 'ftp://cxc.harvard.edu/pub/$CIAO_VER/$SYS_VER'
+lcd $LftpDir/chandra/ciao
+mirror -enr --include-glob *
 bye
 "
 
@@ -34,13 +50,25 @@ mirror -enr --include-glob *atomdb_v${AtomVer}*tar.bz2
 bye
 "
 
-#xmm caldb
+#xmm
+if [ $(uname -s) == Darwin ] ; then
+  SAS_VER=$(lftp -e "ls -t; bye" ftp://xmm.esac.esa.int/pub/sas/latest/MacOSX 2> /dev/null |egrep -o Darwin[0-9.\-]* | head -1)
+  SAS_VER=MacOSX/$SAS_VER
+else
+  SAS_VER=$(lftp -e "ls -t; bye" ftp://xmm.esac.esa.int/pub/sas/latest/Linux 2> /dev/null |egrep -o Ubuntu[0-9.\-]* | head -1)
+  SAS_VER=Linux/$SAS_VER
+fi
+
 lftp -e "
+open 'ftp://xmm.esac.esa.int/pub/sas/latest/$SAS_VER'
+lcd $LftpDir/xmm-newton/sas
+mirror -enr --include-glob *tgz
 open 'ftp://xmm.esac.esa.int/pub/ccf/valid_constituents/'
-lcd $LftpDir/sas/valid_constituents
+lcd $LftpDir/xmm-newton/valid_constituents
 mirror -enr --include-glob *
 bye
 "
+
 #sixte
 lftp -e "
 open 'http://www.sternwarte.uni-erlangen.de/research/sixte/downloads/sixte/instruments/'
