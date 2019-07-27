@@ -5,8 +5,8 @@ Use crontab -e to set a periodic checking, for example:
 00 03 * * * /home/whoami/Desktop/lftp/lftp.sh
 ```
 
-currently, tracking list:
-heasoft & Xspec latest patch
-chandra ciao & caldb
-ATOMDB
-sixte
+1. currently, tracking list:
+2. heasoft & Xspec latest patch
+3. chandra ciao & caldb
+4. ATOMDB
+5. sixte
