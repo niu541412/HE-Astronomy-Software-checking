@@ -5,35 +5,48 @@ cd $LftpDir
 
 #heasoft
 lftp -e "
-open 'https://heasarc.gsfc.nasa.gov/FTP/software/lheasoft/release'
+open 'https://heasarc.gsfc.nasa.gov/FTP/software/lheasoft/release/'
 lcd $LftpDir/heasoft
 mirror -enr --include-glob heasoft*src.tar.gz --exclude-glob *xspec*
 bye
 "
 
 #chandra
-CIAO_VER=$(lftp -e "ls -t; bye" ftp://cxc.harvard.edu/pub 2> /dev/null |egrep -o ciao[0-9.]* | head -1)
-lftp -e "
-open 'ftp://cda.harvard.edu/pub/arcftp/caldb/'
-lcd $LftpDir/chandra/caldb
-mirror -enr --include-glob caldb_*_main.tar.gz
-lcd $LftpDir/chandra/tmp
-open 'ftp://cxc.harvard.edu/pub/$CIAO_VER/all'
-mirror -enr --include-glob ciao-install
-bye
-"
 if [ $(uname -s) == Darwin ] ; then
-  SYS_VER=$(cat chandra/tmp/ciao-install|grep -A15 '${macver}'|tail -15|grep -B15 unsupport_sys|grep RSYS|tail -1|sed s/.*RSYS=\"//g|sed s/\"//g)
+  #SYS_VER=$(cat chandra/tmp/ciao-install|grep -A15 '${macver}'|tail -15|grep -B15 unsupport_sys|grep RSYS|tail -1|sed s/.*RSYS=\"//g|sed s/\"//g)
+  SYS_VER=macOS
 else
-  SYS_VER=LinuxU
+  SYS_VER=Linux
 fi
-
-lftp -e "
-open 'ftp://cxc.harvard.edu/pub/$CIAO_VER/$SYS_VER'
-lcd $LftpDir/chandra/ciao
-mirror -enr --include-glob *
-bye
-"
+CXC_URL="http://cxc.harvard.edu"
+ciao_install_url=$(curl -sX GET $CXC_URL/ciao/download/|grep "Standard Install with the base CALDB"|egrep -o "href=\".*\" "|sed s/href=//g|sed s/\"//g)
+cd $LftpDir/chandra
+wget -O ciao_install $CXC_URL/$ciao_install_url
+CONTROL_FILE=$(cat ciao_install |grep ^CONTROL_FILE|egrep -o \".*\"|sed s/\"//g)
+CONTROL_LOCATION=$(cat ciao_install |grep ^CONTROL_LOCATION|egrep -o \".*\"|sed s/\"//g)
+rm ciao_install
+wget -N $CONTROL_LOCATION/$CONTROL_FILE
+FILE_NAME=$(cat ciao-control |grep -A 30 "SYS $SYS_VER"|grep -m 2 -B 30 "SYS"|grep FILE|egrep -o ciao.*tar.gz; cat ciao-control |grep -A 1 "SEG CALDB_main"|grep FILE|egrep -o caldb.*tar.gz;cat ciao-control |grep -A 1 "SEG contrib"|grep FILE|egrep -o ciao.*tar.g)
+cd ciao
+for i in *; do
+       if ! grep -qFe "$i" <<< $FILE_NAME; then
+               echo "Deleting: $i"
+               rm $i
+       fi
+done
+FILE_LOCATION=$(cat ../ciao-control |grep -A 1 "SYS $SYS_VER"|grep DL|sed s/DL\ //g|sed s/\ .*//g)
+CIAO_FILE=$(cat ../ciao-control |grep -A 30 "SYS $SYS_VER"|grep -m 2 -B 30 "SYS"|grep FILE|egrep -o ciao.*tar.gz)
+for i in $CIAO_FILE; do
+        echo $i
+        wget -N $FILE_LOCATION/$i
+done
+FILE_LOCATION=$(cat ../ciao-control |grep -A 1 "# CALDB"|grep DL|sed s/DL\ //g|sed s/\ .*//g)
+CALDB_FILE=$(cat ../ciao-control |grep -A 1 "SEG CALDB_main"|grep FILE|egrep -o caldb.*tar.gz)
+wget -N $FILE_LOCATION/$CALDB_FILE
+FILE_LOCATION=$(cat ../ciao-control |grep -A 1 "# Contr"|grep DL|sed s/DL\ //g|sed s/\ .*//g)
+CONTR_FILE=$(cat ../ciao-control |grep -A 1 "SEG contrib"|grep FILE|egrep -o ciao.*tar.g)
+wget -N $FILE_LOCATION/$CONTR_FILE
+cd ../..
 
 #atomdb
 lftp -e "
@@ -80,7 +93,7 @@ bye
 xspatch=$(curl -sX GET https://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/issues/issues.html|grep latest\ patchfile|egrep -o "\/docs.*gz")
 cd $LftpDir/heasoft
 patch_current=$(ls Xspatch_*gz)
-if [ $patch_current != $(basename $xspatch) ] ;then
+if [ x$patch_current != x$(basename $xspatch) ] ;then
 rm $patch_current
 wget -N  "https://heasarc.gsfc.nasa.gov"$xspatch
 fi
