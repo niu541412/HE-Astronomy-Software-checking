@@ -1,4 +1,6 @@
-Need lftp, curl
+Need lftp, curl, wget
+
+modify the **LftpDir** environment variable in the lftp.sh
 
 Use crontab -e to set a periodic checking, for example:
 ```crontab
