@@ -18,7 +18,7 @@ if [ $(uname -s) == Darwin ] ; then
 else
   SYS_VER=Linux
 fi
-CXC_URL="http://cxc.harvard.edu"
+CXC_URL="https://cxc.harvard.edu"
 ciao_install_url=$(curl -sX GET $CXC_URL/ciao/download/|grep "Standard Install with the base CALDB"|egrep -o "href=\".*\" "|sed s/href=//g|sed s/\"//g)
 cd $LftpDir/chandra
 wget -O ciao_install $CXC_URL/$ciao_install_url
