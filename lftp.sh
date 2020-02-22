@@ -44,20 +44,20 @@ FILE_LOCATION=$(cat ../ciao-control |grep -A 1 "# CALDB"|grep DL|sed s/DL\ //g|s
 CALDB_FILE=$(cat ../ciao-control |grep -A 1 "SEG CALDB_main"|grep FILE|egrep -o caldb.*tar.gz)
 wget -N $FILE_LOCATION/$CALDB_FILE
 FILE_LOCATION=$(cat ../ciao-control |grep -A 1 "# Contr"|grep DL|sed s/DL\ //g|sed s/\ .*//g)
-CONTR_FILE=$(cat ../ciao-control |grep -A 1 "SEG contrib"|grep FILE|egrep -o ciao.*tar.g)
+CONTR_FILE=$(cat ../ciao-control |grep -A 1 "SEG contrib"|grep FILE|egrep -o ciao.*tar.gz)
 wget -N $FILE_LOCATION/$CONTR_FILE
 cd ../..
 
 #atomdb
 lftp -e "
-open 'ftp://sao-ftp.harvard.edu/AtomDB/releases/'
+open 'http://hea-www.cfa.harvard.edu/AtomDB/releases/'
 lcd $LftpDir/atomdb
 mirror -enr --include-glob LATEST
 bye
 "
 AtomVer=$(cat $LftpDir/atomdb/LATEST)
 lftp -e "
-open 'ftp://sao-ftp.harvard.edu/AtomDB/releases/'
+open 'http://hea-www.cfa.harvard.edu/AtomDB/releases/'
 lcd $LftpDir/atomdb
 mirror -enr --include-glob *atomdb_v${AtomVer}*tar.bz2
 bye
