@@ -65,18 +65,18 @@ bye
 
 #xmm
 if [ $(uname -s) == Darwin ] ; then
-  SAS_VER=$(lftp -e "ls -t; bye" ftp://xmm.esac.esa.int/pub/sas/latest/MacOSX 2> /dev/null |egrep -o Darwin[0-9.\-]* | head -1)
+  SAS_VER=$(lftp -e "ls -t; bye" http://sasdev-xmm.esac.esa.int/pub/sas/latest/MacOSX 2> /dev/null |egrep -o Darwin[0-9.\-]* | head -1)
   SAS_VER=MacOSX/$SAS_VER
-else
-  SAS_VER=$(lftp -e "ls -t; bye" ftp://xmm.esac.esa.int/pub/sas/latest/Linux 2> /dev/null |egrep -o Ubuntu[0-9.\-]* | head -1)
+else  
+  SAS_VER=$(lftp -e "ls -t; bye"http://sasdev-xmm.esac.esa.int/pub/sas/latest/Linux 2> /dev/null |egrep -o Ubuntu[0-9.\-]* | head -1)
   SAS_VER=Linux/$SAS_VER
 fi
 
 lftp -e "
-open 'ftp://xmm.esac.esa.int/pub/sas/latest/$SAS_VER'
+open 'http://sasdev-xmm.esac.esa.int/pub/sas/latest/$SAS_VER'
 lcd $LftpDir/xmm-newton/sas
 mirror -enr --include-glob *tgz
-open 'ftp://xmm.esac.esa.int/pub/ccf/valid_constituents/'
+open 'http://sasdev-xmm.esac.esa.int/pub/ccf/valid_constituents/'
 lcd $LftpDir/xmm-newton/valid_constituents
 mirror -enr --include-glob *
 bye
