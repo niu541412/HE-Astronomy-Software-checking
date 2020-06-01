@@ -68,7 +68,7 @@ if [ $(uname -s) == Darwin ] ; then
   SAS_VER=$(lftp -e "ls -t; bye" http://sasdev-xmm.esac.esa.int/pub/sas/latest/MacOSX 2> /dev/null |egrep -o Darwin[0-9.\-]* | head -1)
   SAS_VER=MacOSX/$SAS_VER
 else  
-  SAS_VER=$(lftp -e "ls -t; bye"http://sasdev-xmm.esac.esa.int/pub/sas/latest/Linux 2> /dev/null |egrep -o Ubuntu[0-9.\-]* | head -1)
+  SAS_VER=$(lftp -e "ls -t; bye" http://sasdev-xmm.esac.esa.int/pub/sas/latest/Linux 2> /dev/null |egrep -o Ubuntu[0-9.\-]* | head -1)
   SAS_VER=Linux/$SAS_VER
 fi
 
