@@ -19,7 +19,7 @@ else
   SYS_VER=Linux
 fi
 CXC_URL="https://cxc.harvard.edu"
-ciao_install_url=$(curl -sX GET $CXC_URL/ciao/download/|grep "Standard Install with the base CALDB"|egrep -o "href=\".*\" "|sed s/href=//g|sed s/\"//g)
+ciao_install_url=$(curl -sX GET $CXC_URL/ciao/download/ciao_install.html|grep "Standard Install with the base CALDB"|egrep -o "href=\".*\" "|sed s/href=//g|sed s/\"//g)
 cd $LftpDir/chandra
 wget -O ciao_install $CXC_URL/$ciao_install_url
 CONTROL_FILE=$(cat ciao_install |grep ^CONTROL_FILE|egrep -o \".*\"|sed s/\"//g)
