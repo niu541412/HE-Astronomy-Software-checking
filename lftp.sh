@@ -1,6 +1,6 @@
 #!/bin/bash
 PATH="/usr/local/bin/":$PATH
-LftpDir='/home/${whoami}/Desktop/lftp'
+LftpDir='${HOME}/Desktop/lftp'
 cd $LftpDir
 
 #heasoft
